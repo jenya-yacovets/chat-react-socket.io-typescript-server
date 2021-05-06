@@ -17,7 +17,6 @@ export default class Server {
     this.io = new Socket(this.server).getIo()
 
     this.checkPort()
-    this.listen()
   }
 
   private checkPort(): void {
@@ -30,9 +29,13 @@ export default class Server {
     }
   }
 
-  private listen(): void {
+  public listen(cb?: Function): void {
     this.server.listen(this.port, () => {
-      console.log(`Runing server on port ${this.port}`)
+      if(cb) {
+        cb()
+      } else {
+        console.log(`Runing server on port ${this.port}`)
+      }
     })
   }
 
