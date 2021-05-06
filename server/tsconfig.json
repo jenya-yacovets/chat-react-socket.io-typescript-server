@@ -1,0 +1,29 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Node 14.16.0",
+    "compilerOptions": {
+      "lib": ["es2020"],
+      "module": "commonjs",
+      "target": "es2020",
+      "sourceMap": true,
+      "rootDir": "src",
+      "outDir": "build/src",
+      "strict": true,
+      "removeComments": true,
+      "noImplicitAny": false, // Показывать ошибку, если где-то задан тип "any".
+      "noImplicitThis": true, // Показывать ошибку на "this", если где-то задан тип "any".
+      "noImplicitReturns": true, // Сообщить об ошибке, когда не все пути кода в функции возвращают значение?
+      "noStrictGenericChecks": true, // Отключить строгую проверку типов джинериков в типах функций?
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
+  }

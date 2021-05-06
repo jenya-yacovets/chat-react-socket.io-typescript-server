@@ -114,3 +114,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Build TypeScript
+build/
+build/*
+
+# Mac
+.DS_Store
+
+# Intelej IDEA
+.idea/
