@@ -20,13 +20,10 @@ export default class Server {
   }
 
   private checkPort(): void {
-    if (typeof process.env.PORT === 'string') {
-      this.port = Number(process.env.PORT.trim())
-    } else if (typeof process.env.PORT === 'number') {
-      this.port = process.env.PORT
-    } else {
-      throw new Error()
+    if(isNaN(Number(process.env.PORT))) {
+      throw new Error('Invalid port server')
     }
+    this.port = Number(process.env.PORT)
   }
 
   public listen(cb?: Function): void {
