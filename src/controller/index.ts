@@ -1,1 +1,4 @@
-export { default as v1} from './v1'
+import UserController from './UserController'
+import UserNoAuthController from "./UserNoAuthController"
+
+export default [UserController, UserNoAuthController]

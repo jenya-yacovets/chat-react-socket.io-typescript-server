@@ -6,9 +6,9 @@ import App from './App'
 import Socket from './Socket'
 
 export default class Server {
-  private server: http.Server
-  private app: express.Application
-  private io: SocketIO.Server
+  private readonly server: http.Server
+  private readonly app: express.Application
+  private readonly io: SocketIO.Server
   private port!: string | number
 
   constructor() {
@@ -31,7 +31,7 @@ export default class Server {
       if(cb) {
         cb()
       } else {
-        console.log(`Runing server on port ${this.port}`)
+        console.log(`Server is running on port ${this.port}`)
       }
     })
   }
