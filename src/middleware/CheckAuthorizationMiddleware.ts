@@ -15,7 +15,7 @@ export class CheckAuthorizationMiddleware implements ExpressMiddlewareInterface 
             }
             next()
         } else {
-            throw new UnauthorizedError()
+            throw new UnauthorizedError("Invalid authorization token")
         }
     }
 }

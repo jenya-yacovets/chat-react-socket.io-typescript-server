@@ -4,14 +4,13 @@ import { Container } from 'typedi'
 
 import './util/env'
 import './service'
+import './config/dbConnection'
 import Server from './core'
 import socket from './socket'
-import controller from './controller'
 import {
     ErrorHandlerMiddleware,
     ErrorNotFoundMiddleware
 } from './middleware'
-
 
 useContainer(Container)
 
@@ -20,7 +19,7 @@ socket(server.getIo())
 
 useExpressServer(server.getApp(), {
     routePrefix: '/v1',
-    controllers: controller,
+    controllers: [__dirname + '/controller/*{.js,.ts}'],
     defaultErrorHandler: false,
     middlewares: [
         ErrorHandlerMiddleware,
