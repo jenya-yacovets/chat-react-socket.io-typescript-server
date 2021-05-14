@@ -1,9 +1,9 @@
 import {Body, HttpCode, JsonController, Post} from 'routing-controllers'
 import {Inject, Service} from "typedi"
-import {UserNoAuthService} from "../service"
+import {AuthService} from "../service"
 import {IsNotEmpty, Length} from "class-validator"
-import {User} from "../entity/User";
-import IResponseJson from "../type/IResponseJson";
+import {User} from "../entity/User"
+import IResponseJson from "../type/IResponseJson"
 
 class AuthUser {
     @IsNotEmpty()
@@ -23,10 +23,10 @@ class RegUser extends AuthUser {
 
 @Service()
 @JsonController()
-export class UserNoAuthController {
+export class AuthController {
 
     @Inject()
-    private userNoAuthService!: UserNoAuthService
+    private userNoAuthService!: AuthService
 
     @Post('/register')
     @HttpCode(201)

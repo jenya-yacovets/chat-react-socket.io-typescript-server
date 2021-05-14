@@ -1,2 +1,2 @@
 export {UserController} from './UserController'
-export {UserNoAuthController} from "./UserNoAuthController"
+export {AuthController} from "./AuthController"

@@ -3,6 +3,7 @@ import { useExpressServer, useContainer } from 'routing-controllers'
 import { Container } from 'typedi'
 
 import './util/env'
+import './config/redisConnection'
 import './service'
 import './config/dbConnection'
 import Server from './core'
