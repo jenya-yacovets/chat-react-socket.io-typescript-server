@@ -12,6 +12,7 @@ import {
     ErrorHandlerMiddleware,
     ErrorNotFoundMiddleware
 } from './middleware'
+import {authorizationMiddleware} from "./middleware/authorizationMiddleware";
 
 useContainer(Container)
 
@@ -22,6 +23,7 @@ useExpressServer(server.getApp(), {
     routePrefix: '/v1',
     controllers: [__dirname + '/controller/*{.js,.ts}'],
     defaultErrorHandler: false,
+    authorizationChecker: authorizationMiddleware,
     middlewares: [
         ErrorHandlerMiddleware,
         ErrorNotFoundMiddleware

@@ -20,7 +20,7 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
       requestId: req.id
     }
 
-    if (error.name == "BadRequestError") {
+    if (error.name === "BadRequestError") {
       responseJson.error = this.badRequestFormatting(error)
     } else if(!responseJson.error || !error.httpCode){
       res.status(500)

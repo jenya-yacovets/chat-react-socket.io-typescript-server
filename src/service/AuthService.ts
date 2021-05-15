@@ -1,44 +1,85 @@
 import {Inject, Service} from 'typedi'
+import { createHash } from 'crypto'
+
 import {User} from "../entity/User"
-import {DuplicationDataHttpError} from "../error/http/DuplicationDataHttpError"
-import {BadRequestError} from "routing-controllers"
-import {JwtService} from "./JwtService";
+import {TokenService} from "./TokenService"
+import {DataNotFoundError} from "../error/DataNotFoundError"
+import {CacheService} from "./CacheService"
+import {DuplicationDataError} from "../error/DuplicationDataError"
+import {InvalidDataError} from "../error/InvalidDataError"
 
 @Service()
 export class AuthService {
 
     @Inject()
-    private jwtService!: JwtService
+    private tokenService!: TokenService
+
+    @Inject()
+    private cacheService!: CacheService
 
     /**
-     * @throws {DuplicationDataHttpError}
+     * @throws {DuplicationDataError}
      */
     async register(user: User): Promise<User> {
 
         const findUserByLogin = await User.findOne({
             login: user.login
         })
-        if(findUserByLogin) {
-            throw new DuplicationDataHttpError("Login is busy")
-        }
-        return user.save();
+        if(findUserByLogin) throw new DuplicationDataError("Login is busy")
+        return user.save()
     }
 
     /**
-     * @throws {BadRequestError}
+     * @throws {InvalidDataError}
      */
-    async authentication(user: User): Promise<User> {
+    async authentication(user: User, fingerprint: string | object, ip: string): Promise<{user: User, tokens: {refreshToken: string, accessToken: string, expiresRefreshToken: number}}> {
         const findUserByLogin = await User.findOne({
             login: user.login
         })
 
-        if(!findUserByLogin) throw new BadRequestError('Invalid login or password')
-        this.jwtService.tokenPair2(findUserByLogin)
+        if(!findUserByLogin) throw new InvalidDataError('Invalid login or password')
+
         const verifyPassword = await findUserByLogin.verifyPassword(user.password)
 
-        if(!verifyPassword) throw new BadRequestError('Invalid login or password')
+        if(!verifyPassword) throw new InvalidDataError('Invalid login or password')
 
-        return findUserByLogin
+        if(typeof fingerprint === 'object') fingerprint = this.genFingerprint(fingerprint)
+
+        const tokens = await this.tokenService.getTokenAuth(findUserByLogin, fingerprint, ip)
+
+        await this.cacheService.save(findUserByLogin)
+
+        return {
+            user: findUserByLogin,
+            tokens
+        }
     }
 
+    /**
+     * @throws {InvalidAuthTokenError, DataNotFoundError}
+     * @param token
+     */
+    async authorization(token: string): Promise<User> {
+
+        const {id} = await this.tokenService.verification(token)
+
+        const findUserCache = await this.cacheService.getCacheOrDB(id)
+
+        return findUserCache
+    }
+
+    /**
+     * @throws {InvalidAuthTokenError}
+     * @param token
+     * @param fingerprint
+     * @param ip
+     */
+    async refreshToken(token: string, fingerprint: string | object, ip: string): Promise<{refreshToken: string, accessToken: string, expiresRefreshToken: number}> {
+        return await this.tokenService.getTokenRefresh(token, this.genFingerprint(fingerprint), ip)
+    }
+
+    private genFingerprint(userAgent): string {
+        let str = userAgent.source
+        return createHash("sha256").update(str).digest("hex")
+    }
 }

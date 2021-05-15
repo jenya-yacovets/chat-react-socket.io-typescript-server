@@ -5,10 +5,10 @@ import {Service} from "typedi"
 @Service({
     eager: true
 })
-export class RedisClient {
+export class RedisConnection {
     private client!: any
     private handyRedis!: WrappedNodeRedisClient
-    private readonly prefix = process.env.REDIS_PREFIX + '_'
+    public readonly prefix = process.env.REDIS_PREFIX + '_'
 
     constructor() {
         this.init()
@@ -32,7 +32,7 @@ export class RedisClient {
         this.handyRedis = createNodeRedisClient(this.client)
     }
 
-    public connect() {
+    public operation() {
         return this.handyRedis
     }
 
