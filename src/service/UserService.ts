@@ -5,7 +5,8 @@ import IReqUserData from "../type/IReqUserData"
 export class UserService {
 
      async getProfile(user: IReqUserData): Promise<any> {
-         return
+         console.log(user)
+         return {}
      }
 
 }

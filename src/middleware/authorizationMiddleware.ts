@@ -16,7 +16,9 @@ export async function authorizationMiddleware({request}: Action, roles: string[]
     if(!jwt) throw new AuthorizationHttpError()
 
     try {
-        await authService.authorization(jwt)
+        const user = await authService.authorization(jwt)
+        request.user = user
+
         return true
     } catch(e) {
         if(e instanceof InvalidAuthTokenError || e instanceof DataNotFoundError) throw new AuthorizationHttpError()

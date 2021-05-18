@@ -3,17 +3,18 @@ import {
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity,
+    Entity, ManyToMany, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm"
 import bcrypt from 'bcrypt'
 import {IsNotEmpty} from "class-validator"
 import {Exclude} from "class-transformer"
+import {Message} from "./Message";
+import {Chat} from "./Chat";
 
 @Entity("user")
 export class User extends BaseEntity{
-    @Exclude()
     private readonly saltRounds: number = Number(process.env.SALT_ROUNDS_PASS_HASH)
 
     @PrimaryGeneratedColumn()
@@ -37,6 +38,12 @@ export class User extends BaseEntity{
     })
     role!: number
 
+    @OneToMany(() => Message, message => message.user)
+    messages!: Message[]
+
+    @ManyToMany(() => Chat, chat => chat.users)
+    chats!: Chat
+
     @CreateDateColumn()
     created_at!: Date
 
@@ -47,11 +54,31 @@ export class User extends BaseEntity{
     delete_at!: Date
 
     @BeforeInsert()
-    async beforeInsert() {
-        this.password = await bcrypt.hash(this.password, this.saltRounds)
+    async beforeInsert(): Promise<void> {
+        this.password = await this.genHash(this.password)
+    }
+
+    public async genHash(password: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            bcrypt.hash(password, this.saltRounds, (error, hash) => {
+                if(!error) {
+                    resolve(hash)
+                } else {
+                    reject(error)
+                }
+            })
+        })
     }
 
     public async verifyPassword(password: string): Promise<boolean> {
-        return bcrypt.compare(password, this.password)
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password, this.password, (error, res) => {
+                if (!error) {
+                    resolve(res)
+                } else {
+                    reject(error)
+                }
+            })
+        })
     }
 }

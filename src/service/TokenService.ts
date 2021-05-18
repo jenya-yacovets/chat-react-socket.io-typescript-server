@@ -60,7 +60,6 @@ export class TokenService {
             await this.redis.operation().del(...keyToken)
             throw new InvalidAuthTokenError()
         }
-        console.log(keyToken)
         if (keyToken.length < 1) throw new InvalidAuthTokenError()
 
         const dataOldTokenJson = await this.redis.operation().get(keyToken[0])

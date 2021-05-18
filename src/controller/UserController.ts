@@ -1,4 +1,4 @@
-import {Authorized, Get, JsonController, Req, UseBefore} from 'routing-controllers'
+import {Authorized, Get, JsonController, Req} from 'routing-controllers'
 import IModifiedRequest from '../type/IModifiedRequest'
 import {UserService} from "../service"
 import {Inject, Service} from "typedi"
