@@ -35,6 +35,8 @@ export class AuthService {
     async authentication(user: User, fingerprint: string | object, ip: string): Promise<{user: User, tokens: {refreshToken: string, accessToken: string, expiresRefreshToken: number}}> {
         const findUserByLogin = await User.findOne({
             login: user.login
+        }, {
+            relations: ['role']
         })
 
         if(!findUserByLogin) throw new InvalidDataError('Invalid login or password')

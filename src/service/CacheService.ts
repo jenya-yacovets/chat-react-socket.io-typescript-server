@@ -2,8 +2,8 @@ import {Inject, Service} from "typedi"
 
 import {RedisConnection} from "../config/redisConnection"
 import {User} from "../entity/User"
-import {ICacheUser} from "../type/ICacheUser"
 import {DataNotFoundError} from "../error/DataNotFoundError"
+import {classToClass, deserialize, serialize} from "class-transformer"
 
 @Service()
 export class CacheService{
@@ -12,15 +12,10 @@ export class CacheService{
     @Inject()
     private readonly redis!: RedisConnection
 
-    public async save(user: User): Promise<ICacheUser> {
-        const data: ICacheUser = {
-            id: user.id,
-            login: user.login,
-            name: user.name,
-            role: user.role
-        }
-        await this.redis.operation().set(this.genRedisKey(user), JSON.stringify(data), ['PX', this.cacheExpires])
-        return data
+    public async save(user: User): Promise<User> {
+        const data = serialize(user, {strategy: 'excludeAll'})
+        await this.redis.operation().set(this.genRedisKey(user), data, ['PX', this.cacheExpires])
+        return classToClass(user, {strategy: 'excludeAll'})
     }
 
     /**
@@ -31,18 +26,19 @@ export class CacheService{
         let redisData: string | null = await this.redis.operation().get(this.genRedisKey(id))
         let user
 
-        try {
-            if (redisData) user = <User> JSON.parse(redisData)
-        } catch (e) {}
+        if(redisData) {
+            user = deserialize(User, redisData)
+        }
 
         if (!user) {
-            user = await User.findOne(id)
+            user = await User.findOne(id, {
+                relations: ['role']
+            })
 
             if(!user) throw new DataNotFoundError('Not found user')
 
             user = await this.save(user)
         }
-
         return user
     }
 

@@ -21,7 +21,10 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
     }
 
     if (error.name === "BadRequestError") {
-      responseJson.error = this.badRequestFormatting(error)
+      responseJson.error = this.badRequestParse(error)
+    } else if(error.name === "NotFound") {
+      console.log('NEXT')
+        return next()
     } else if(!responseJson.error || !error.httpCode){
       res.status(500)
       responseJson.error = 'Server error'
@@ -30,7 +33,7 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
     res.json(responseJson)
   }
 
-  private badRequestFormatting(error: HttpError): string {
+  private badRequestParse(error: HttpError): string {
     try {
       if(typeof error.errors === 'object') {
 

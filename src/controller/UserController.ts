@@ -1,7 +1,9 @@
-import {Authorized, Get, JsonController, Req} from 'routing-controllers'
+import {Authorized, CurrentUser, Get, JsonController, Req} from 'routing-controllers'
 import IModifiedRequest from '../type/IModifiedRequest'
 import {UserService} from "../service"
 import {Inject, Service} from "typedi"
+import IResponseJson from "../type/IResponseJson"
+import {User} from "../entity/User"
 
 @Service()
 @Authorized()
@@ -12,8 +14,11 @@ export class UserController {
     private userService!: UserService
 
     @Get('/profile')
-    getProfile(@Req() req: IModifiedRequest) {
-        return this.userService.getProfile(req.user)
+    async getProfile(@Req() req: IModifiedRequest, @CurrentUser() user: User): Promise<IResponseJson> {
+        const profile = await this.userService.getProfile(user);
+        return {
+            success: true,
+            data: profile
+        }
     }
-
 }

@@ -3,40 +3,49 @@ import {
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity, ManyToMany, OneToMany,
+    Entity, ManyToMany, ManyToOne, OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm"
 import bcrypt from 'bcrypt'
 import {IsNotEmpty} from "class-validator"
-import {Exclude} from "class-transformer"
+import {Exclude, Expose, Transform, Type} from "class-transformer"
 import {Message} from "./Message";
 import {Chat} from "./Chat";
+import {Role} from "./Role";
 
 @Entity("user")
 export class User extends BaseEntity{
+    @Exclude()
     private readonly saltRounds: number = Number(process.env.SALT_ROUNDS_PASS_HASH)
 
+    @Expose()
+    @IsNotEmpty()
     @PrimaryGeneratedColumn()
     id!: number
 
+    @Expose()
     @IsNotEmpty()
-    @Column()
+    @Column({
+        unique: true
+    })
     login!: string
 
+    @Expose()
     @IsNotEmpty()
     @Column()
     name!: string
 
-    @IsNotEmpty()
     @Exclude()
+    @IsNotEmpty()
     @Column()
     password!: string
 
-    @Column( {
-        default: 1
-    })
-    role!: number
+    @Expose()
+    @Type(() => Role)
+    // @Transform(role => role.name)
+    @ManyToOne(() => Role, role => role.user)
+    role!: Role
 
     @OneToMany(() => Message, message => message.user)
     messages!: Message[]
@@ -54,7 +63,7 @@ export class User extends BaseEntity{
     delete_at!: Date
 
     @BeforeInsert()
-    async beforeInsert(): Promise<void> {
+    private async beforeInsert(): Promise<void> {
         this.password = await this.genHash(this.password)
     }
 

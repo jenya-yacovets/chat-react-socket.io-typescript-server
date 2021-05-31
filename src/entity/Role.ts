@@ -1,31 +1,32 @@
 import {
-    BaseEntity,
     Column,
     CreateDateColumn,
     DeleteDateColumn,
-    Entity, JoinTable, ManyToMany,
+    Entity,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-import {Message} from "./Message";
 import {User} from "./User";
+import {IsNotEmpty} from "class-validator";
+import {Expose, Type} from "class-transformer";
 
-@Entity("chat")
-export class Chat extends BaseEntity {
+@Entity()
+export class Role {
 
+    @Expose()
+    @IsNotEmpty()
     @PrimaryGeneratedColumn()
     id!: number
 
+    @Expose()
+    @IsNotEmpty()
     @Column()
     name!: string
 
-    @OneToMany(() => Message, message => message.chat)
-    messages!: Message[]
-
-    @ManyToMany(() => User, user => user.chats)
-    @JoinTable()
-    users!: User
+    @Type(() => User)
+    @OneToMany(() => User, user => user.role)
+    user!: User
 
     @CreateDateColumn()
     created_at!: Date

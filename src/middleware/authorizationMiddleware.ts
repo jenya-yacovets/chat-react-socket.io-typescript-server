@@ -5,9 +5,9 @@ import {AuthService} from "../service"
 import {AuthorizationHttpError} from "../error/http/AuthorizationHttpError"
 import {InvalidAuthTokenError} from "../error/InvalidAuthTokenError"
 import {DataNotFoundError} from "../error/DataNotFoundError"
-import {ServerHttpError} from "../error/http/ServerHttpError"
+import {NotFoundHttpError} from "../error/http/NotFoundHttpError"
 
-export async function authorizationMiddleware({request}: Action, roles: string[]): Promise<boolean> {
+export async function authorizationMiddleware({request}: Action, roles: string[] | string): Promise<boolean> {
 
     const authService = Container.get<AuthService>(AuthService)
 
@@ -16,13 +16,18 @@ export async function authorizationMiddleware({request}: Action, roles: string[]
     if(!jwt) throw new AuthorizationHttpError()
 
     try {
-        const user = await authService.authorization(jwt)
-        request.user = user
-
-        return true
+        request.user = await authService.authorization(jwt)
     } catch(e) {
         if(e instanceof InvalidAuthTokenError || e instanceof DataNotFoundError) throw new AuthorizationHttpError()
+        throw e
     }
-    throw new ServerHttpError()
+
+    if(roles.length > 0) {
+        if (!roles.includes(request.user.role.name)) {
+            throw new NotFoundHttpError();
+        }
+    }
+
+    return true
 }
 

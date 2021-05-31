@@ -1,6 +1,6 @@
-import {createConnection} from "typeorm"
+import {Connection, createConnection} from "typeorm"
 
-let connection
+let connection: Connection
 
 (async () => {
     try {
@@ -10,5 +10,3 @@ let connection
         throw error
     }
 })()
-
-export default connection
