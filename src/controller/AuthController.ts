@@ -1,4 +1,4 @@
-import {BadRequestError, Body, CookieParam, HttpCode, JsonController, Post, Req, Res} from 'routing-controllers'
+import {Body, CookieParam, HttpCode, JsonController, Post, Req, Res} from 'routing-controllers'
 import {Inject, Service} from "typedi"
 import {Response} from "express"
 import {IsNotEmpty, isUUID, Length} from "class-validator"
@@ -13,6 +13,7 @@ import {InvalidTokenHttpError} from "../error/http/InvalidTokenHttpError"
 import {ConflictHttpError} from "../error/http/ConflictHttpError"
 import {DuplicationDataError} from "../error/DuplicationDataError"
 import {InvalidDataError} from "../error/InvalidDataError"
+import { BadRequestHttpError } from '../error/http/BadRequestHttpError'
 
 class AuthUser {
     @IsNotEmpty()
@@ -83,7 +84,7 @@ export class AuthController {
                 }
             }
         } catch (e) {
-            if (e instanceof InvalidDataError) throw new BadRequestError('Invalid login or password')
+            if (e instanceof InvalidDataError) throw new BadRequestHttpError('Invalid login or password')
             throw new ServerHttpError()
         }
     }
@@ -91,7 +92,7 @@ export class AuthController {
     @Post('/refresh-token')
     async refreshToken(@Req() req: IModifiedRequest, @Res() res: Response, @CookieParam('refreshToken') token: string): Promise<IResponseJson> {
 
-        if (!isUUID(token, 4)) throw new BadRequestError('Invalid token')
+        if (!isUUID(token, 4)) throw new BadRequestHttpError('Invalid token')
 
         try {
 

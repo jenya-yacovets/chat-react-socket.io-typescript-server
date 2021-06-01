@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import jwt from 'jsonwebtoken'
 
 import {User} from "../entity/User"
-import {RedisConnection} from "../config/redisConnection"
+import {RedisConnection} from "../config/RedisConnection"
 import {promisify} from "util"
 import {InvalidAuthTokenError} from "../error/InvalidAuthTokenError"
 
@@ -20,7 +20,7 @@ export class TokenService {
     public async getTokenAuth(user: User, fingerprint: string, ip: string): Promise<{refreshToken: string, accessToken: string, expiresRefreshToken: number}> {
         const tokenUserList = await this.redis.keysCustom(this.genKeyAllUser(user))
 
-        const multi = this.redis.operation().multi()
+        const multi = this.redis.connection.multi()
 
         if(tokenUserList.length >= this.maxActiveSessionUser) await multi.del(...tokenUserList)
 
@@ -57,13 +57,13 @@ export class TokenService {
     public async getTokenRefresh(oldToken: string, fingerprint: string, ip: string) {
         const keyToken = await this.redis.keysCustom(this.genKeyToken(oldToken))
         if(keyToken.length > 1) {
-            await this.redis.operation().del(...keyToken)
+            await this.redis.connection.del(...keyToken)
             throw new InvalidAuthTokenError()
         }
         if (keyToken.length < 1) throw new InvalidAuthTokenError()
 
-        const dataOldTokenJson = await this.redis.operation().get(keyToken[0])
-        await this.redis.operation().del(keyToken[0])
+        const dataOldTokenJson = await this.redis.connection.get(keyToken[0])
+        await this.redis.connection.del(keyToken[0])
         let dataOldToken
 
         try {
@@ -82,7 +82,7 @@ export class TokenService {
             createdAt: Date.now()
         }
 
-        await this.redis.operation().set(this.genKey(dataOldToken.userId, refreshToken), JSON.stringify(dataRedisSave), ['PX', this.refreshTokenExpires])
+        await this.redis.connection.set(this.genKey(dataOldToken.userId, refreshToken), JSON.stringify(dataRedisSave), ['PX', this.refreshTokenExpires])
 
         return {
             refreshToken,

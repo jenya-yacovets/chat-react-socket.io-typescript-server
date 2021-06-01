@@ -9,7 +9,7 @@ import {
 } from "typeorm"
 import bcrypt from 'bcrypt'
 import {IsNotEmpty} from "class-validator"
-import {Exclude, Expose, Transform, Type} from "class-transformer"
+import {Exclude, Expose, Type} from "class-transformer"
 import {Message} from "./Message";
 import {Chat} from "./Chat";
 import {Role} from "./Role";
@@ -43,7 +43,6 @@ export class User extends BaseEntity{
 
     @Expose()
     @Type(() => Role)
-    // @Transform(role => role.name)
     @ManyToOne(() => Role, role => role.user)
     role!: Role
 

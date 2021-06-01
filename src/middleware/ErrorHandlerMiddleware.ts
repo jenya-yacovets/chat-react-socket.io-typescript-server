@@ -1,9 +1,11 @@
-import { Middleware, ExpressErrorMiddlewareInterface } from 'routing-controllers'
+import {Middleware, ExpressErrorMiddlewareInterface, BadRequestError} from 'routing-controllers'
 import { Response, NextFunction } from 'express'
 import IResponseJson from "../type/IResponseJson"
 import IModifiedRequest from "../type/IModifiedRequest"
 import {Service} from "typedi"
 import {HttpError} from "../error/http/HttpError"
+import {NotFoundHttpError} from "../error/http/NotFoundHttpError";
+import {BadRequestHttpError} from "../error/http/BadRequestHttpError";
 
 @Middleware({ type: 'after' })
 @Service()
@@ -20,12 +22,11 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
       requestId: req.id
     }
 
-    if (error.name === "BadRequestError") {
+    if (error instanceof BadRequestHttpError || error instanceof BadRequestError) {
       responseJson.error = this.badRequestParse(error)
-    } else if(error.name === "NotFound") {
-      console.log('NEXT')
+    } else if(error instanceof NotFoundHttpError) {
         return next()
-    } else if(!responseJson.error || !error.httpCode){
+    } else if(!error.message || !error.httpCode){
       res.status(500)
       responseJson.error = 'Server error'
     }

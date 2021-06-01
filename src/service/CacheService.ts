@@ -1,6 +1,6 @@
 import {Inject, Service} from "typedi"
 
-import {RedisConnection} from "../config/redisConnection"
+import {RedisConnection} from "../config/RedisConnection"
 import {User} from "../entity/User"
 import {DataNotFoundError} from "../error/DataNotFoundError"
 import {classToClass, deserialize, serialize} from "class-transformer"
@@ -14,7 +14,7 @@ export class CacheService{
 
     public async save(user: User): Promise<User> {
         const data = serialize(user, {strategy: 'excludeAll'})
-        await this.redis.operation().set(this.genRedisKey(user), data, ['PX', this.cacheExpires])
+        await this.redis.connection.set(this.genRedisKey(user), data, ['PX', this.cacheExpires])
         return classToClass(user, {strategy: 'excludeAll'})
     }
 
@@ -23,7 +23,7 @@ export class CacheService{
      * @param id
      */
     public async getCacheOrDB(id: number): Promise<User> {
-        let redisData: string | null = await this.redis.operation().get(this.genRedisKey(id))
+        let redisData: string | null = await this.redis.connection.get(this.genRedisKey(id))
         let user
 
         if(redisData) {

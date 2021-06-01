@@ -14,11 +14,13 @@ export class UserController {
     private userService!: UserService
 
     @Get('/profile')
-    async getProfile(@Req() req: IModifiedRequest, @CurrentUser() user: User): Promise<IResponseJson> {
-        const profile = await this.userService.getProfile(user);
+    async getProfile(@CurrentUser() user: User): Promise<IResponseJson> {
+        const getUser = await this.userService.getProfile(user);
+        delete getUser.role
+
         return {
             success: true,
-            data: profile
+            data: getUser
         }
     }
 }

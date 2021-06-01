@@ -6,7 +6,7 @@
   "scripts": {
     "startBuild": "node build/src/index.js",
     "start": "node -r ts-node/register ./src/index.ts",
-    "start:watch": "nodemon",
+    "start:watch": "nodemon --signal SIGINT",
     "build": "tsc"
   },
   "repository": {
@@ -41,16 +41,18 @@
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "express-request-id": "^1.4.1",
-    "express-status-monitor": "^1.3.3",
+    "express-status-monitor": "^1.2.3",
     "express-useragent": "^1.0.15",
     "handy-redis": "^2.2.1",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
     "pg": "^8.6.0",
     "redis": "^3.1.2",
     "reflect-metadata": "^0.1.13",
     "request-ip": "^2.1.3",
     "routing-controllers": "^0.9.0",
+    "socket-controllers": "^0.0.5",
     "socket.io": "^4.0.1",
     "typedi": "^0.10.0",
     "typeorm": "^0.2.32",
